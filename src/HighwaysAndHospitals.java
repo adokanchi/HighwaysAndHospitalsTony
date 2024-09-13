@@ -20,6 +20,44 @@ public class HighwaysAndHospitals {
             return (long) n * hospitalCost;
         }
 
+        int[] rootNodes = new int[n+1];
+
+        for (int[] highway : cities) {
+            // Merge the subgraphs across the highway
+            int start = findRoot(highway[1], rootNodes);
+            int target = findRoot(highway[0], rootNodes);
+            // If not already part of the same subgraph
+            if (start != target) {
+                rootNodes[target] = start;
+            }
+        }
+
+        long cost = 0;
+        for (int node = 1 ; node <= n; node++) {
+            if (rootNodes[node] == 0) {
+                cost += hospitalCost;
+            }
+            else {
+                cost += highwayCost;
+            }
+        }
+        return cost;
+    }
+
+    public static int findRoot(int node, int[] rootNodes) {
+        while (rootNodes[node] != 0) {
+            node = rootNodes[node];
+        }
+        return node;
+    }
+
+    public static long cost1(int n, int hospitalCost, int highwayCost, int cities[][]) {
+        // If it's cheapest to just give everyone a hospital
+        if (hospitalCost <= highwayCost) {
+            // One hospital in each city
+            return (long) n * hospitalCost;
+        }
+
         // One hospital per disconnected subgraph, connect the rest with roads
         long cost = 0;
 
@@ -29,9 +67,10 @@ public class HighwaysAndHospitals {
         ArrayList<ArrayList<Integer>> connections = new ArrayList<ArrayList<Integer>>();
         connections.add(null);
 
-        for (int node = 1; node <= n; node++) {
+        // O(m*n)
+        for (int node = 1; node <= n; node++) { // O(n)
             connections.add(new ArrayList<Integer>());
-            for (int[] highway : cities) {
+            for (int[] highway : cities) { // O(m)
                 if (highway[0] == node) {
                     connections.get(node).add(highway[1]);
                 }
@@ -41,7 +80,7 @@ public class HighwaysAndHospitals {
             }
         }
 
-        for (int i = 1; i <= n; i++) {
+        for (int i = 1; i <= n; i++) { // O(n)
             if (seen[i]) {
                 continue;
             }
@@ -61,7 +100,7 @@ public class HighwaysAndHospitals {
                         continue;
                     }
                      */
-                for (int destination : connections.get(startNode)) {
+                for (int destination : connections.get(startNode)) { // O(m) ??
                     if (seen[destination]) {
                         continue;
                     }
